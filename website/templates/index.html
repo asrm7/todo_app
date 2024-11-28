@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}">
+    <title>Todo list</title>
+</head>
+<body>
+    <h1>Todo list</h1>
+    <form method="POST" action="/add">
+        <input type="text" name="task" placeholder="Enter your task">
+        <button type="submit">Add</button>
+    </form>
+    {% if message %}
+        <div class="alert {% if message_type == 'success' %}alert-success{% elif message_type == 'error' %}alert-danger{% else %}alert-info{% endif %}" role="alert">
+             {{ message }}
+        </div>
+    {% endif %}  
+
+    <ul id="todoList">
+        {% for todo in todos %}
+            <li >
+                <div>
+                    <span class="{{ 'complete' if todo.complete else '' }}">{{ todo.task }}</span>
+                    <span class="date">{{ todo.date_created.strftime('%d-%m-%Y %H:%M') }}</span>
+                </div>
+                <div>
+                    <form method="POST" action="/update/{{ todo.id }}" style="display:inline;">
+                        <button type="submit">{{ 'Done' if todo.complete else 'To do' }}</button>
+                    </form>
+                    <form method="POST" action="/delete/{{ todo.id }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <button onclick="showEditForm('{{ todo.id }}', '{{ todo.task }}')">Edit</button>
+                </div>
+                <form method="POST" action="/edit/{{ todo.id }}" id="editForm-{{ todo.id }}" style="display:none;">
+                    <input type="text" name="new_task" value="{{ todo.task }}">
+                    <button type="submit">Save</button>
+                    <button type="button" onclick="hideEditForm('{{ todo.id }}')">Cancel</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    <script>
+        function showEditForm(id, task) {
+            document.getElementById('editForm-' + id).style.display = 'block';
+        }
+        function hideEditForm(id) {
+            document.getElementById('editForm-' + id).style.display = 'none';
+        }
+    </script>
+</body>
+</html>
